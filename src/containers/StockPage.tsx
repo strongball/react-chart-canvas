@@ -11,18 +11,18 @@ import dayjs from 'dayjs';
 import Demo from '../components/chart2/Demo';
 interface Props {}
 const StockPage: React.FC<Props> = (props) => {
-    // const [stockCode, setStockCode] = useState('AAPL');
-    // const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'));
-    // const [displayDay, setDisplayDay] = useState(30);
-    // const { data } = useSWR(stockCode, (key) => {
-    //     if (!key) {
-    //         return null;
-    //     }
-    //     return getStock(key);
-    // });
-    // const handleSubmit = (data: FormData) => {
-    //     setStockCode(data.stockCode);
-    // };
+    const [stockCode, setStockCode] = useState('AAPL');
+    const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'));
+    const [displayDay, setDisplayDay] = useState(30);
+    const { data } = useSWR(stockCode, (key) => {
+        if (!key) {
+            return null;
+        }
+        return getStock(key);
+    });
+    const handleSubmit = (data: FormData) => {
+        setStockCode(data.stockCode);
+    };
     return (
         <Container>
             <Card>
@@ -30,7 +30,7 @@ const StockPage: React.FC<Props> = (props) => {
                     <StockForm initValue={{ stockCode }} onSubmit={handleSubmit} />
                 </CardContent> */}
                 <CardContent>
-                    <Demo />
+                    <Demo symbol={stockCode} data={data ?? []} />
                     {/* {data ? (
                         <ReactiveDiv
                             style={{ width: '100%', height: 400 }}

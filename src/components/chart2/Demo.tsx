@@ -1,23 +1,29 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { getStock, StockData } from '../../api/stock';
 import { Candlesticks } from './Candlesticks';
-import { data } from './data';
 
-interface Props {}
+interface Props {
+    symbol?: string;
+    data?: StockData[];
+}
 const Demo: React.FC<Props> = (props) => {
+    const { symbol, data } = props;
     const canvas = useRef<HTMLCanvasElement>(null);
     // const [chartInstance, setChartInstance] = useRef<HTMLCanvasElement>(null);
     useEffect(() => {
+        if (!data) {
+            return;
+        }
         const a = new Candlesticks({
             canvas: canvas.current!,
             padding: 10,
-            gridScale: 1,
+            gridScale: 2,
             gridColor: '#DBDBDB',
             bullColor: '#3D92FA',
             bearColor: '#FB6C64',
-            data: data,
         });
-        a.draw();
-    }, []);
+        a.draw(symbol ?? '', data);
+    }, [data]);
     return (
         <div>
             <canvas

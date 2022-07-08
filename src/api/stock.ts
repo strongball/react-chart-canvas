@@ -9,22 +9,22 @@ export interface StockData {
     volume: number;
 }
 export async function getStock(code: string) {
-    // const rowData = MockData['Time Series (Daily)'];
-    const axiosResult = await axios.request({
-        method: 'GET',
-        url: 'https://alpha-vantage.p.rapidapi.com/query',
-        params: {
-            function: 'TIME_SERIES_DAILY',
-            symbol: code,
-            outputsize: 'compact',
-            datatype: 'json',
-        },
-        headers: {
-            'x-rapidapi-host': 'alpha-vantage.p.rapidapi.com',
-            'x-rapidapi-key': import.meta.env.VITE_RAPIDAPI_KEY,
-        },
-    });
-    const rowData = axiosResult.data['Time Series (Daily)'];
+    const rowData = MockData['Time Series (Daily)'];
+    // const axiosResult = await axios.request({
+    //     method: 'GET',
+    //     url: 'https://alpha-vantage.p.rapidapi.com/query',
+    //     params: {
+    //         function: 'TIME_SERIES_DAILY',
+    //         symbol: code,
+    //         outputsize: 'compact',
+    //         datatype: 'json',
+    //     },
+    //     headers: {
+    //         'x-rapidapi-host': 'alpha-vantage.p.rapidapi.com',
+    //         'x-rapidapi-key': import.meta.env.VITE_RAPIDAPI_KEY,
+    //     },
+    // });
+    // const rowData = axiosResult.data['Time Series (Daily)'];
 
     return Object.keys(rowData).map<StockData>((key) => ({
         date: key,
