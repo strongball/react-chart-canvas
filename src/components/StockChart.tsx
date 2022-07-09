@@ -1,15 +1,12 @@
 import dayjs from 'dayjs';
 import React, { useMemo } from 'react';
-import numeral from 'numeral';
 
 import { StockData } from '../api/stock';
 import BaseChart from './chart/BaseChart';
 import { Point, DataValue } from './chart/types';
-import Bar from './chart/Bar';
 import XAxis from './chart/XAxis';
 import YAxis from './chart/YAxis';
-import Tooltip from './chart/Tooltip';
-import KBar from './chart/KBar';
+import Candlestick from './chart/Candlestick';
 
 import { useZoomControl } from '../hooks/zoom';
 import { useSwipeControl } from '../hooks/swipe';
@@ -32,7 +29,6 @@ const StockChart: React.FC<Props> = (props) => {
     const dateEnd = dayjs(date)
         .add(displayDay / 2, 'day')
         .format('YYYY-MM-DD');
-
     const inTimeStocks = useMemo<StockData[]>(
         () =>
             data?.filter((stock) => {
@@ -42,6 +38,9 @@ const StockChart: React.FC<Props> = (props) => {
         [data, dateStart, dateEnd]
     );
 
+    /**
+     * date between dateStart, dateEnd
+     */
     const xAxisTicks: DataValue[] = useMemo(() => {
         const dates: string[] = [];
         let cursor = dayjs(dateStart);
@@ -71,29 +70,11 @@ const StockChart: React.FC<Props> = (props) => {
         const ticks: number[] = [];
         let cursor = maxTick;
         while (cursor >= minTick) {
-            ticks.push(Math.round(cursor * 100) / 100);
+            ticks.push(Math.round(cursor * 2) / 2);
             cursor -= interval;
         }
-        ticks.push(Math.round(cursor * 100) / 100);
+        ticks.push(Math.round(cursor * 2) / 2);
         // add head and tail
-        return ticks;
-    }, [inTimeStocks]);
-
-    const volumeYAxisTicks: DataValue[] = useMemo(() => {
-        if (inTimeStocks.length === 0) {
-            return [];
-        }
-        const volumes = inTimeStocks.map((pp) => pp.volume as number);
-
-        const min = Math.round(Math.min(...volumes) * 0.1);
-        const max = Math.round(Math.max(...volumes) * 1.1);
-        const interval = Math.round((max - min) / 5);
-        const ticks: number[] = [];
-        let cursor = max;
-        while (cursor >= min) {
-            ticks.push(cursor);
-            cursor -= interval;
-        }
         return ticks;
     }, [inTimeStocks]);
 
@@ -109,22 +90,22 @@ const StockChart: React.FC<Props> = (props) => {
      */
     const minAllowDate = data?.[data.length - 1].date;
     const maxAllowDate = data?.[0].date;
+    const tickWidth = width / displayDay;
     const swipeEvent = useSwipeControl({
         onSwipe(value) {
-            const changeValue = Math.round(value / 10);
-            const targetDay = dayjs(date).add(-changeValue, 'day');
+            const targetDay = dayjs(date).add(value > 0 ? -1 : 1, 'day');
             if (!targetDay.isBefore(minAllowDate) && !targetDay.isAfter(maxAllowDate)) {
-                // last day is today.
                 onDateChange && onDateChange(targetDay.format('YYYY-MM-DD'));
                 return;
             }
         },
+        threshold: tickWidth,
     });
     return (
         <div>
             <BaseChart
                 width={width}
-                height={(height / 3) * 2}
+                height={height}
                 xAxisTicks={xAxisTicks}
                 yAxisTicks={priceYAxisTicks}
                 yTickWidth={30}
@@ -137,50 +118,10 @@ const StockChart: React.FC<Props> = (props) => {
                     },
                 }}
             >
-                <XAxis />
+                <XAxis line={false} />
                 <YAxis label={(data) => Number(data).toFixed(2)} />
-                {/* <Line data={inTimeStocks} x="date" y="close" /> */}
-                <KBar data={inTimeStocks} />
-                <Tooltip render={(data: StockData) => <TooltipContent data={data} />} />
+                <Candlestick data={inTimeStocks} />
             </BaseChart>
-            <BaseChart
-                width={width}
-                height={height / 3}
-                xAxisTicks={xAxisTicks}
-                yAxisTicks={volumeYAxisTicks}
-                yTickWidth={30}
-                DivProps={{
-                    ...zoomEvent,
-                    ...swipeEvent,
-                    onTouchMove(e) {
-                        zoomEvent?.onTouchMove && zoomEvent?.onTouchMove(e);
-                        swipeEvent?.onTouchMove && swipeEvent?.onTouchMove(e);
-                    },
-                }}
-            >
-                <YAxis label={(data) => numeral(data).format('0 a')} />
-                <Bar
-                    data={inTimeStocks}
-                    x="date"
-                    y="volume"
-                    color={(data) => (data.close >= data.open ? 'green' : 'red')}
-                />
-                <Tooltip render={(data: StockData) => <TooltipContent data={data} />} />
-            </BaseChart>
-        </div>
-    );
-};
-
-const TooltipContent: React.FC<{ data: StockData }> = (props) => {
-    const { data } = props;
-    return (
-        <div>
-            <div>{`Date: ${data.date}`}</div>
-            <div>{`Open: ${data.open}`}</div>
-            <div>{`High: ${data.high}`}</div>
-            <div>{`Low: ${data.low}`}</div>
-            <div>{`Close: ${data.close}`}</div>
-            <div>{`Volume: ${data.volume}`}</div>
         </div>
     );
 };

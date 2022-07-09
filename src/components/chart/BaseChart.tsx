@@ -1,8 +1,8 @@
-import React, { createContext, useCallback, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ChartContext } from './context';
 import { DataValue } from './types';
-import './chart.scss';
+import { CanvasRender } from './CanvasRender';
 
 interface Props {
     width: number;
@@ -18,6 +18,16 @@ interface Props {
 }
 const BaseChart: React.FC<Props> = (props) => {
     const { width, height, xAxisTicks, yAxisTicks, yTickWidth = 30, DivProps } = props;
+
+    const canvas = useRef<HTMLCanvasElement>(null);
+    const [canvasRender, setCanvasRender] = useState<CanvasRender | null>(null);
+    useEffect(() => {
+        if (canvas.current) {
+            console.log('init canvasRender');
+            setCanvasRender(new CanvasRender({ canvas: canvas.current }));
+        }
+    }, [width, height]);
+
     const xTickHeight = 20;
 
     const xAxisFn = useCallback(
@@ -38,6 +48,7 @@ const BaseChart: React.FC<Props> = (props) => {
             }
             const useAbleHeight = height - xTickHeight - paddingTop;
             if (typeof y === 'number' && typeof yAxisTicks[0] === 'number') {
+                // numeral
                 const min: number = yAxisTicks[0];
                 const max: number = yAxisTicks[yAxisTicks.length - 1] as number;
                 return ((y - min) / (max - min)) * useAbleHeight + paddingTop;
@@ -48,10 +59,11 @@ const BaseChart: React.FC<Props> = (props) => {
         [yAxisTicks, xTickHeight, height]
     );
 
-    const [hoverItem, setHoverItem] = useState<any>();
+    canvasRender?.clear();
     return (
         <ChartContext.Provider
             value={{
+                canvasRender: canvasRender,
                 width: width,
                 height: height,
                 xAxisFn: xAxisFn,
@@ -60,8 +72,6 @@ const BaseChart: React.FC<Props> = (props) => {
                 yAxisTicks: yAxisTicks,
                 xTickHeight: xTickHeight,
                 yTickWidth: yTickWidth,
-                hoverItem: hoverItem,
-                onHoverItem: setHoverItem,
             }}
         >
             <div
@@ -74,7 +84,14 @@ const BaseChart: React.FC<Props> = (props) => {
                     cursor: DivProps?.onMouseDown ? 'grab' : undefined,
                 }}
             >
-                <svg viewBox={`0 0 ${width} ${height}`}>{props.children}</svg>
+                <canvas
+                    style={{ border: 1, borderColor: 'black', borderStyle: 'solid' }}
+                    ref={canvas}
+                    width={width}
+                    height={height}
+                >
+                    {props.children}
+                </canvas>
             </div>
         </ChartContext.Provider>
     );

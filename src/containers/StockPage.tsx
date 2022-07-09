@@ -1,37 +1,34 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { getStock } from '../api/stock';
 
-import StockForm, { FormData } from '../components/StockForm';
 import StockChart from '../components/StockChart';
 import ReactiveDiv from '../components/ReactiveDiv';
 
-import { Card, CardContent, Container, useMediaQuery } from '@mui/material';
+import { Card, CardContent, Container } from '@mui/material';
 import dayjs from 'dayjs';
-import Demo from '../components/chart2/Demo';
+
 interface Props {}
 const StockPage: React.FC<Props> = (props) => {
     const [stockCode, setStockCode] = useState('AAPL');
-    const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'));
-    const [displayDay, setDisplayDay] = useState(30);
+    const [date, setDate] = useState(dayjs('2022-01-01').format('YYYY-MM-DD'));
+    const [displayDay, setDisplayDay] = useState(10);
     const { data } = useSWR(stockCode, (key) => {
         if (!key) {
             return null;
         }
         return getStock(key);
     });
-    const handleSubmit = (data: FormData) => {
-        setStockCode(data.stockCode);
-    };
+    useEffect(() => {
+        if (data) {
+            setDate(data[data.length - 1].date);
+        }
+    }, [data]);
     return (
         <Container>
             <Card>
-                {/* <CardContent>
-                    <StockForm initValue={{ stockCode }} onSubmit={handleSubmit} />
-                </CardContent> */}
                 <CardContent>
-                    <Demo symbol={stockCode} data={data ?? []} />
-                    {/* {data ? (
+                    {data ? (
                         <ReactiveDiv
                             style={{ width: '100%', height: 400 }}
                             render={({ width, height }) => (
@@ -48,7 +45,7 @@ const StockPage: React.FC<Props> = (props) => {
                         />
                     ) : (
                         'loading...'
-                    )} */}
+                    )}
                 </CardContent>
             </Card>
         </Container>

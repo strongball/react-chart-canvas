@@ -2,7 +2,7 @@ import React, { createContext } from 'react';
 
 import { DataValue } from './types';
 
-import './chart.scss';
+import { CanvasRender } from './CanvasRender';
 
 interface HoverPayload<T> {
     x: number;
@@ -10,6 +10,7 @@ interface HoverPayload<T> {
     data: T;
 }
 interface ChartContextProps {
+    canvasRender: CanvasRender | null;
     width: number;
     height: number;
     xAxisFn: (x: DataValue) => number;
@@ -19,9 +20,9 @@ interface ChartContextProps {
     xTickHeight: number;
     yTickWidth: number;
     hoverItem?: HoverPayload<any>;
-    onHoverItem: (data?: HoverPayload<any>) => void;
 }
 export const ChartContext = createContext<ChartContextProps>({
+    canvasRender: null,
     width: 0,
     height: 0,
     xAxisTicks: [],
@@ -30,5 +31,4 @@ export const ChartContext = createContext<ChartContextProps>({
     yAxisFn: () => 0,
     xTickHeight: 20,
     yTickWidth: 30,
-    onHoverItem: () => {},
 });
