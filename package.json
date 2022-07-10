@@ -1,5 +1,5 @@
 {
-  "name": "stock-chart-canvas",
+  "name": "react-chart-canvas",
   "version": "0.0.1",
   "scripts": {
     "dev": "vite",
