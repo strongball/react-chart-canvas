@@ -3,14 +3,18 @@ import React, { useMemo } from 'react';
 
 import { StockData } from '../api/stock';
 import BaseChart from './chart/BaseChart';
-import { Point, DataValue } from './chart/types';
+import { DataValue } from './chart/types';
 import XAxis from './chart/XAxis';
 import YAxis from './chart/YAxis';
 import Candlestick from './chart/Candlestick';
 
 import { useZoomControl } from '../hooks/zoom';
 import { useSwipeControl } from '../hooks/swipe';
+import HelperLine from './chart/HelperLine';
 
+function priceRound(value: number): number {
+    return Math.round(value * 2) / 2;
+}
 interface Props {
     width: number;
     height: number;
@@ -23,12 +27,8 @@ interface Props {
 const StockChart: React.FC<Props> = (props) => {
     const { width, height, data, date, onDateChange, displayDay, onDisplayDayChange } = props;
 
-    const dateStart = dayjs(date)
-        .add(-displayDay / 2, 'day')
-        .format('YYYY-MM-DD');
-    const dateEnd = dayjs(date)
-        .add(displayDay / 2, 'day')
-        .format('YYYY-MM-DD');
+    const dateStart = dayjs(date).add(-displayDay, 'day').format('YYYY-MM-DD');
+    const dateEnd = dayjs(date).format('YYYY-MM-DD');
     const inTimeStocks = useMemo<StockData[]>(
         () =>
             data?.filter((stock) => {
@@ -42,16 +42,7 @@ const StockChart: React.FC<Props> = (props) => {
      * date between dateStart, dateEnd
      */
     const xAxisTicks: DataValue[] = useMemo(() => {
-        const dates: string[] = [];
-        let cursor = dayjs(dateStart);
-        while (!cursor.isAfter(dateEnd)) {
-            const date = cursor.format('YYYY-MM-DD');
-            if (data?.some((stock) => stock.date === date)) {
-                // 有開盤
-                dates.push(date);
-            }
-            cursor = cursor.add(1, 'day');
-        }
+        const dates: string[] = inTimeStocks.map((item) => item.date).reverse();
         return dates;
     }, [dateStart, dateEnd, data]);
     const priceYAxisTicks: DataValue[] = useMemo(() => {
@@ -64,16 +55,16 @@ const StockChart: React.FC<Props> = (props) => {
         const max = Math.max(...prices);
         const gap = max - min;
 
-        const minTick = min - gap * 0.4;
-        const maxTick = max + gap * 0.4;
+        const minTick = Math.max(min - gap * 0.2, 0);
+        const maxTick = max + gap * 0.2;
         const interval = (maxTick - minTick) / 5;
         const ticks: number[] = [];
-        let cursor = maxTick;
-        while (cursor >= minTick) {
-            ticks.push(Math.round(cursor * 2) / 2);
-            cursor -= interval;
+        let cursor = minTick;
+        while (cursor <= maxTick) {
+            ticks.push(priceRound(cursor));
+            cursor += interval;
         }
-        ticks.push(Math.round(cursor * 2) / 2);
+        ticks.push(Math.max(priceRound(cursor), 0));
         // add head and tail
         return ticks;
     }, [inTimeStocks]);
@@ -108,7 +99,9 @@ const StockChart: React.FC<Props> = (props) => {
                 height={height}
                 xAxisTicks={xAxisTicks}
                 yAxisTicks={priceYAxisTicks}
-                yTickWidth={30}
+                xTickHeight={10}
+                yTickWidth={50}
+                yTickPosition="right"
                 DivProps={{
                     ...zoomEvent,
                     ...swipeEvent,
@@ -120,6 +113,7 @@ const StockChart: React.FC<Props> = (props) => {
             >
                 <XAxis line={false} />
                 <YAxis label={(data) => Number(data).toFixed(2)} />
+                <HelperLine label={(data) => Number(data).toFixed(2)} />
                 <Candlestick data={inTimeStocks} />
             </BaseChart>
         </div>

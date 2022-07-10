@@ -1,23 +1,36 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ChartContext } from './context';
-import { DataValue } from './types';
+import { DataValue, Padding, Point, Rect } from './types';
 import { CanvasRender } from './CanvasRender';
+import { pxToTick, ticksToPx } from './utils';
 
 interface Props {
     width: number;
     height: number;
+    padding?: Padding;
     // xAxis
     xAxisTicks: DataValue[];
+    xTickHeight?: number;
 
     // yAxis
     yAxisTicks: DataValue[];
     yTickWidth?: number;
-
+    yTickPosition?: 'right' | 'left';
     DivProps?: React.HTMLAttributes<HTMLDivElement>;
 }
 const BaseChart: React.FC<Props> = (props) => {
-    const { width, height, xAxisTicks, yAxisTicks, yTickWidth = 30, DivProps } = props;
+    const {
+        width,
+        height,
+        padding = { top: 20, bottom: 20, left: 20, right: 20 },
+        xAxisTicks,
+        xTickHeight = 30,
+        yAxisTicks,
+        yTickWidth = 30,
+        yTickPosition = 'left',
+        DivProps,
+    } = props;
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const [canvasRender, setCanvasRender] = useState<CanvasRender | null>(null);
@@ -28,50 +41,79 @@ const BaseChart: React.FC<Props> = (props) => {
         }
     }, [width, height]);
 
-    const xTickHeight = 20;
-
+    const content: Rect = {
+        x: yTickPosition === 'left' ? yTickWidth : 0 + padding.left,
+        y: padding.top,
+        width: width - yTickWidth - padding.left - padding.right,
+        height: height - xTickHeight - padding.top - padding.bottom,
+    };
     const xAxisFn = useCallback(
         (x: DataValue) => {
-            if (xAxisTicks.length === 0) {
-                return 0;
-            }
-            const xTickWidth = (width - yTickWidth - 20) / (xAxisTicks.length - 1);
-            return yTickWidth + xAxisTicks.findIndex((tick) => tick === x) * xTickWidth;
+            return ticksToPx({
+                target: x,
+                ticks: xAxisTicks,
+                start: content.x,
+                end: content.x + content.width,
+            });
         },
-        [xAxisTicks, width, yTickWidth]
+        [xAxisTicks, content.x, content.width]
     );
     const yAxisFn = useCallback(
         (y: DataValue) => {
-            const paddingTop = 10;
-            if (yAxisTicks.length === 0) {
-                return 0;
-            }
-            const useAbleHeight = height - xTickHeight - paddingTop;
-            if (typeof y === 'number' && typeof yAxisTicks[0] === 'number') {
-                // numeral
-                const min: number = yAxisTicks[0];
-                const max: number = yAxisTicks[yAxisTicks.length - 1] as number;
-                return ((y - min) / (max - min)) * useAbleHeight + paddingTop;
-            }
-            const yTickHeight = useAbleHeight / (yAxisTicks.length - 1);
-            return yAxisTicks.findIndex((tick) => tick === y) * yTickHeight + paddingTop;
+            return ticksToPx({
+                target: y,
+                ticks: yAxisTicks,
+                start: content.y + content.height,
+                end: content.y,
+            });
         },
-        [yAxisTicks, xTickHeight, height]
+        [yAxisTicks, content.y, content.height]
     );
 
+    /**
+     * hover
+     */
+    const [hover, setHover] = useState<Point>();
+    const handleMouseMove = (e) => {
+        if (canvas.current) {
+            const cRect = canvas.current.getBoundingClientRect(); // Gets CSS pos, and width/height
+            const canvasX = e.clientX - cRect.left; // Subtract the 'left' of the canvas
+            const canvasY = e.clientY - cRect.top;
+            const tickX = pxToTick({
+                target: canvasX,
+                ticks: xAxisTicks,
+                start: content.x,
+                end: content.x + content.width,
+            });
+            const tickY = pxToTick({
+                target: canvasY,
+                ticks: yAxisTicks,
+                start: content.y + content.height,
+                end: content.y,
+            });
+            if (tickX === null || tickY === null) {
+                if (hover) {
+                    setHover(undefined);
+                }
+            } else if (hover?.x !== tickX || hover.y !== tickY) {
+                setHover({ x: tickX, y: tickY });
+            }
+        }
+    };
     canvasRender?.clear();
     return (
         <ChartContext.Provider
             value={{
                 canvasRender: canvasRender,
-                width: width,
-                height: height,
+                content: content,
                 xAxisFn: xAxisFn,
                 xAxisTicks: xAxisTicks,
                 yAxisFn: yAxisFn,
                 yAxisTicks: yAxisTicks,
                 xTickHeight: xTickHeight,
                 yTickWidth: yTickWidth,
+                yTickPosition: yTickPosition,
+                hover: hover,
             }}
         >
             <div
@@ -89,6 +131,7 @@ const BaseChart: React.FC<Props> = (props) => {
                     ref={canvas}
                     width={width}
                     height={height}
+                    onMouseMove={handleMouseMove}
                 >
                     {props.children}
                 </canvas>

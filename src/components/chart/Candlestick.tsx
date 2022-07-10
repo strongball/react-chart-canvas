@@ -15,7 +15,9 @@ interface Props {
 }
 const Candlestick = (props: PropsWithChildren<Props>) => {
     const { data, barWidth = 10 } = props;
-    const { canvasRender, xAxisFn, yAxisFn, yAxisTicks, onHoverItem } = useContext(ChartContext);
+    const { canvasRender, content, xAxisFn, yAxisFn, xAxisTicks } = useContext(ChartContext);
+    const eachStickWidth = content.width / xAxisTicks.length;
+    const limitedBarWidth = Math.min(barWidth, eachStickWidth);
     canvasRender &&
         data.map((item, i) => {
             const x = xAxisFn(item.date);
@@ -29,9 +31,9 @@ const Candlestick = (props: PropsWithChildren<Props>) => {
             canvasRender.drawLine({ x: x, y: highY }, { x: x, y: lowY }, { strokeStyle: 'color' });
 
             canvasRender.drawRect({
-                x: x - barWidth / 2,
+                x: x - limitedBarWidth / 2,
                 y: rectTop,
-                width: barWidth,
+                width: limitedBarWidth,
                 height: rectHeight,
                 color: color,
             });

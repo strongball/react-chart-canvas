@@ -8,7 +8,6 @@ const ReactiveDiv: React.FC<Props> = ({ render, ...divProps }) => {
     const [size, setSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
     useEffect(() => {
         const resizeCallback = () => {
-            console.log('resize');
             const rect = ref.current?.getBoundingClientRect();
             if (rect) {
                 setSize({

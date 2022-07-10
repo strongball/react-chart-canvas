@@ -10,28 +10,30 @@ interface Props {
 }
 const YAxis: React.FC<Props> = (props) => {
     const { maxTickCount = 10, fontSize = 8, label = (v) => v.toString(), line = true } = props;
-    const { canvasRender, xAxisFn, yAxisFn, xAxisTicks, yAxisTicks, yTickWidth } = useContext(ChartContext);
+    const { canvasRender, content, yAxisFn, yAxisTicks, yTickWidth, yTickPosition } = useContext(ChartContext);
     const yTickInterval = Math.ceil(yAxisTicks.length / maxTickCount);
-    canvasRender &&
+    if (canvasRender) {
         yAxisTicks.forEach((yAxisTick, index) => {
             if (line) {
                 canvasRender.drawLine(
-                    { x: xAxisFn(xAxisTicks[0]), y: yAxisFn(yAxisTick) },
-                    { x: xAxisFn(xAxisTicks[xAxisTicks.length - 1]), y: yAxisFn(yAxisTick) },
+                    { x: content.x, y: yAxisFn(yAxisTick) },
+                    { x: content.x + content.width, y: yAxisFn(yAxisTick) },
                     { strokeStyle: '#cfcfcf' }
                 );
             }
-            if ((yAxisTicks.length - index + 1) % yTickInterval === 0) {
+            if (index % yTickInterval === 0) {
+                const x = yTickPosition === 'left' ? 10 : content.x + content.width + 10;
                 canvasRender.drawText(
                     label(yAxisTick),
                     {
-                        x: xAxisFn(xAxisTicks[0]) - yTickWidth,
+                        x: x,
                         y: yAxisFn(yAxisTick) + fontSize / 2,
                     },
                     { font: `${fontSize}px` }
                 );
             }
         });
+    }
     return null;
 };
 export default YAxis;

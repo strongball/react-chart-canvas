@@ -17,6 +17,7 @@ interface DrawTextOptions {
     font?: string;
 }
 interface DrawLineOptions {
+    lineDash?: number[];
     strokeStyle?: string;
 }
 export class CanvasRender {
@@ -28,12 +29,14 @@ export class CanvasRender {
         this.ctx = this.canvas.getContext('2d')!;
     }
     // helper function for drawing a solid line on canvas.
-    drawLine(start: Position, end: Position, { strokeStyle }: DrawLineOptions = {}) {
+    drawLine(start: Position, end: Position, { strokeStyle, lineDash }: DrawLineOptions = {}) {
         this.ctx.save();
+        this.ctx.lineWidth = 1;
         strokeStyle && (this.ctx.strokeStyle = strokeStyle);
+        lineDash && this.ctx.setLineDash(lineDash);
         this.ctx.beginPath();
-        this.ctx.moveTo(start.x, start.y);
-        this.ctx.lineTo(end.x, end.y);
+        this.ctx.moveTo(start.x + 0.5, start.y + 0.5);
+        this.ctx.lineTo(end.x + 0.5, end.y + 0.5);
         this.ctx.stroke();
         this.ctx.restore();
     }
@@ -54,6 +57,7 @@ export class CanvasRender {
         this.ctx.restore();
     }
     clear() {
+        console.log('clear');
         this.ctx.save();
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
