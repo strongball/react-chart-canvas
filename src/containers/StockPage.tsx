@@ -12,7 +12,7 @@ interface Props {}
 const StockPage: React.FC<Props> = (props) => {
     const [stockCode, setStockCode] = useState('QQQ');
     const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'));
-    const [displayDay, setDisplayDay] = useState(100);
+    const [displayDay, setDisplayDay] = useState(500);
     const { data } = useSWR(stockCode, async (key) => {
         if (!key) {
             return null;
@@ -22,9 +22,6 @@ const StockPage: React.FC<Props> = (props) => {
     });
     useEffect(() => {
         if (data) {
-            const startDate = data[500].date;
-            const endDate = data[0].date;
-            setDisplayDay(dayjs(endDate).diff(startDate, 'day'));
             setDate(data[0].date);
         }
     }, [data]);

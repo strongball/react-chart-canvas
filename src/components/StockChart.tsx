@@ -27,29 +27,30 @@ interface Props {
 const StockChart: React.FC<Props> = (props) => {
     const { width, height, data, date, onDateChange, displayDay, onDisplayDayChange } = props;
 
-    const dateStart = dayjs(date).add(-displayDay, 'day').format('YYYY-MM-DD');
-    const dateEnd = dayjs(date).format('YYYY-MM-DD');
-    const inTimeStocks = useMemo<StockData[]>(
-        () =>
-            data?.filter((stock) => {
-                const date = dayjs(stock.date);
-                return !date.isBefore(dateStart) && !date.isAfter(dateEnd);
-            }) || [],
-        [data, dateStart, dateEnd]
-    );
+    // const dateStart = dayjs(date).add(-displayDay, 'day').format('YYYY-MM-DD');
+    // const dateEnd = dayjs(date).format('YYYY-MM-DD');
+    const inChartStocks = useMemo<StockData[]>(() => {
+        const stocks: StockData[] = [];
+        data?.forEach((stock) => {
+            if (!dayjs(stock.date).isAfter(date) && stocks.length < displayDay) {
+                stocks.push(stock);
+            }
+        });
+        return stocks;
+    }, [data, date, displayDay]);
 
     /**
      * date between dateStart, dateEnd
      */
     const xAxisTicks: DataValue[] = useMemo(() => {
-        const dates: string[] = inTimeStocks.map((item) => item.date).reverse();
+        const dates: string[] = inChartStocks.map((item) => item.date).reverse();
         return dates;
-    }, [dateStart, dateEnd, data]);
+    }, [inChartStocks]);
     const priceYAxisTicks: DataValue[] = useMemo(() => {
-        if (inTimeStocks.length === 0) {
+        if (inChartStocks.length === 0) {
             return [];
         }
-        const prices = inTimeStocks.map((pp) => [pp.high, pp.low]).flat();
+        const prices = inChartStocks.map((pp) => [pp.high, pp.low]).flat();
 
         const min = Math.min(...prices);
         const max = Math.max(...prices);
@@ -67,7 +68,7 @@ const StockChart: React.FC<Props> = (props) => {
         ticks.push(Math.max(priceRound(cursor), 0));
         // add head and tail
         return ticks;
-    }, [inTimeStocks]);
+    }, [inChartStocks]);
 
     const zoomEvent = useZoomControl({
         onZoomChange(value) {
@@ -114,7 +115,7 @@ const StockChart: React.FC<Props> = (props) => {
                 <XAxis line={false} />
                 <YAxis label={(data) => Number(data).toFixed(2)} />
                 <HelperLine label={(data) => Number(data).toFixed(2)} />
-                <Candlestick data={inTimeStocks} />
+                <Candlestick data={inChartStocks} />
             </BaseChart>
         </div>
     );

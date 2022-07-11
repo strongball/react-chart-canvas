@@ -36,7 +36,6 @@ const BaseChart: React.FC<Props> = (props) => {
     const [canvasRender, setCanvasRender] = useState<CanvasRender | null>(null);
     useEffect(() => {
         if (canvas.current) {
-            console.log('init canvasRender');
             setCanvasRender(new CanvasRender({ canvas: canvas.current }));
         }
     }, [width, height]);
