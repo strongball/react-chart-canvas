@@ -1,5 +1,6 @@
 # React Chart(canvas)
 [DEMO](https://strongball.github.io/react-chart-canvas/)
+![Preview](/preview.png?raw=true "Preview")
 
 ## Feature
 * Display auxiliary lines with cursor.
