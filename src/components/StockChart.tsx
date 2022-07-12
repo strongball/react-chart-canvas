@@ -27,8 +27,6 @@ interface Props {
 const StockChart: React.FC<Props> = (props) => {
     const { width, height, data, date, onDateChange, displayDay, onDisplayDayChange } = props;
 
-    // const dateStart = dayjs(date).add(-displayDay, 'day').format('YYYY-MM-DD');
-    // const dateEnd = dayjs(date).format('YYYY-MM-DD');
     const inChartStocks = useMemo<StockData[]>(() => {
         const stocks: StockData[] = [];
         data?.forEach((stock) => {
@@ -85,7 +83,7 @@ const StockChart: React.FC<Props> = (props) => {
     const tickWidth = width / displayDay;
     const swipeEvent = useSwipeControl({
         onSwipe(value) {
-            const targetDay = dayjs(date).add(value > 0 ? -1 : 1, 'day');
+            const targetDay = dayjs(date).add(Math.round(-value / tickWidth), 'day');
             if (!targetDay.isBefore(minAllowDate) && !targetDay.isAfter(maxAllowDate)) {
                 onDateChange && onDateChange(targetDay.format('YYYY-MM-DD'));
                 return;
@@ -112,7 +110,7 @@ const StockChart: React.FC<Props> = (props) => {
                     },
                 }}
             >
-                <XAxis line={false} />
+                <XAxis line={false} maxTickCount={Math.round(width / 80)} />
                 <YAxis label={(data) => Number(data).toFixed(2)} />
                 <HelperLine label={(data) => Number(data).toFixed(2)} />
                 <Candlestick data={inChartStocks} />

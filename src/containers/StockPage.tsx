@@ -35,7 +35,7 @@ const StockPage: React.FC<Props> = (props) => {
                     <ButtonGroup variant="outlined" aria-label="outlined button group">
                         <Button onClick={() => setDisplayDay(displayDay + 10)}>+</Button>
                         <Button onClick={() => setDisplayDay(displayDay - 10)}>-</Button>
-                        <Button onClick={() => setDisplayDay(10)}>10 Day</Button>
+                        <Button onClick={() => setDisplayDay(30)}>30 Day</Button>
                         <Button onClick={() => setDisplayDay(100)}>100 Day</Button>
                         <Button onClick={() => setDisplayDay(500)}>500 Day</Button>
                         <Button onClick={() => setDisplayDay(1000)}>1000 Day</Button>
