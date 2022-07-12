@@ -7,13 +7,13 @@ import ReactiveDiv from '../components/ReactiveDiv';
 
 import { Button, ButtonGroup, Card, CardContent, Container } from '@mui/material';
 import dayjs from 'dayjs';
+import FPS from '../components/FPS';
 
 interface Props {}
 const StockPage: React.FC<Props> = (props) => {
-    const [stockCode, setStockCode] = useState('QQQ');
     const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'));
     const [displayDay, setDisplayDay] = useState(500);
-    const { data } = useSWR(stockCode, async (key) => {
+    const { data } = useSWR('QQQ', async (key) => {
         if (!key) {
             return null;
         }
@@ -29,6 +29,9 @@ const StockPage: React.FC<Props> = (props) => {
         <Container>
             <Card>
                 <CardContent>
+                    <div>
+                        {`Date: ${date}, Day: ${displayDay},`} <FPS />
+                    </div>
                     <ButtonGroup variant="outlined" aria-label="outlined button group">
                         <Button onClick={() => setDisplayDay(displayDay + 10)}>+</Button>
                         <Button onClick={() => setDisplayDay(displayDay - 10)}>-</Button>
