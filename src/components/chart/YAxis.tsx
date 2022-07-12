@@ -10,12 +10,12 @@ interface Props {
 }
 const YAxis: React.FC<Props> = (props) => {
     const { maxTickCount = 10, fontSize = 8, label = (v) => v.toString(), line = true } = props;
-    const { canvasRender, content, yAxisFn, yAxisTicks, yTickWidth, yTickPosition } = useContext(ChartContext);
+    const { render, content, yAxisFn, yAxisTicks, yTickWidth, yTickPosition } = useContext(ChartContext);
     const yTickInterval = Math.ceil(yAxisTicks.length / maxTickCount);
-    if (canvasRender) {
+    if (render) {
         yAxisTicks.forEach((yAxisTick, index) => {
             if (line) {
-                canvasRender.drawLine(
+                render.drawLine(
                     { x: content.x, y: yAxisFn(yAxisTick) },
                     { x: content.x + content.width, y: yAxisFn(yAxisTick) },
                     { strokeStyle: '#cfcfcf' }
@@ -23,7 +23,7 @@ const YAxis: React.FC<Props> = (props) => {
             }
             if (index % yTickInterval === 0) {
                 const x = yTickPosition === 'left' ? 10 : content.x + content.width + 10;
-                canvasRender.drawText(
+                render.drawText(
                     label(yAxisTick),
                     {
                         x: x,

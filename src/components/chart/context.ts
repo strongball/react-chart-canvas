@@ -2,10 +2,10 @@ import React, { createContext } from 'react';
 
 import { DataValue, Point, Rect } from './types';
 
-import { CanvasRender } from './CanvasRender';
+import { CanvasRender, RenderBackend } from './CanvasRender';
 
 interface ChartContextProps {
-    canvasRender: CanvasRender | null;
+    render: RenderBackend | null;
     content: Rect;
     xAxisFn: (x: DataValue) => number;
     yAxisFn: (x: DataValue) => number;
@@ -17,7 +17,7 @@ interface ChartContextProps {
     hover?: Point;
 }
 export const ChartContext = createContext<ChartContextProps>({
-    canvasRender: null,
+    render: null,
     content: { x: 0, y: 9, width: 0, height: 0 },
     xAxisTicks: [],
     xAxisFn: () => 0,

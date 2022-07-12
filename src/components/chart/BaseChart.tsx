@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 
 import { ChartContext } from './context';
 import { DataValue, Padding, Point, Rect } from './types';
-import { CanvasRender } from './CanvasRender';
+import { CanvasRender, RenderBackend } from './CanvasRender';
 import { pxToTick, ticksToPx } from './utils';
 
 interface Props {
@@ -18,8 +18,10 @@ interface Props {
     yTickWidth?: number;
     yTickPosition?: 'right' | 'left';
     DivProps?: React.HTMLAttributes<HTMLDivElement>;
+    // for test
+    mockRender?: RenderBackend;
 }
-const BaseChart: React.FC<Props> = (props) => {
+const BaseChart: React.FC<React.PropsWithChildren<Props>> = (props) => {
     const {
         width,
         height,
@@ -30,12 +32,15 @@ const BaseChart: React.FC<Props> = (props) => {
         yTickWidth = 30,
         yTickPosition = 'left',
         DivProps,
+        mockRender,
     } = props;
 
     const canvas = useRef<HTMLCanvasElement>(null);
-    const [canvasRender, setCanvasRender] = useState<CanvasRender | null>(null);
+    const [canvasRender, setCanvasRender] = useState<RenderBackend | null>(null);
     useEffect(() => {
-        if (canvas.current) {
+        if (mockRender) {
+            setCanvasRender(mockRender);
+        } else if (canvas.current) {
             setCanvasRender(new CanvasRender({ canvas: canvas.current }));
         }
     }, [width, height]);
@@ -103,7 +108,7 @@ const BaseChart: React.FC<Props> = (props) => {
     return (
         <ChartContext.Provider
             value={{
-                canvasRender: canvasRender,
+                render: canvasRender,
                 content: content,
                 xAxisFn: xAxisFn,
                 xAxisTicks: xAxisTicks,

@@ -1,26 +1,33 @@
-interface Options {
+export interface Options {
     canvas: HTMLCanvasElement;
 }
-interface Position {
+export interface Position {
     x: number;
     y: number;
 }
-interface DrawRectOptions {
+export interface DrawRectOptions {
     x: number;
     y: number;
     width: number;
     height: number;
     color?: string;
 }
-interface DrawTextOptions {
+export interface DrawTextOptions {
     fillStyle?: string;
     font?: string;
 }
-interface DrawLineOptions {
+export interface DrawLineOptions {
     lineDash?: number[];
     strokeStyle?: string;
 }
-export class CanvasRender {
+export abstract class RenderBackend {
+    abstract drawLine(start: Position, end: Position, options: DrawLineOptions);
+    abstract drawRect(options: DrawRectOptions);
+    abstract drawText(text: string, position: Position, params: DrawTextOptions);
+    abstract clear();
+}
+
+export class CanvasRender implements RenderBackend {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
     constructor(options: Options) {

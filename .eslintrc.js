@@ -9,8 +9,9 @@ module.exports = {
         'plugin:react/recommended',
         // 'plugin:@typescript-eslint/eslint-recommended',
         'plugin:prettier/recommended',
+        "plugin:react/jsx-runtime"
     ],
-    globals: {},
+    globals: { describe: true, it: true, expect: true, NodeJS: true },
     settings: {
         react: {
             version: 'detect',

@@ -8,7 +8,7 @@ export function useZoomControl({
     onZoomChange,
     delay = 10,
 }: WheelControlOptions): Pick<React.HTMLAttributes<HTMLDivElement>, 'onWheel' | 'onTouchMove'> {
-    const wheelTimeout = useRef<number>();
+    const wheelTimeout = useRef<NodeJS.Timeout>();
     const wheelValue = useRef<number>(0);
     const onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
         wheelValue.current += e.deltaY;
