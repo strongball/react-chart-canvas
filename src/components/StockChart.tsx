@@ -25,15 +25,15 @@ interface Props {
     data?: StockData[];
 }
 const StockChart: React.FC<Props> = (props) => {
-    const { width, height, data, date, onDateChange, displayDay, onDisplayDayChange } = props;
+    const { width, height, data = [], date, onDateChange, displayDay, onDisplayDayChange } = props;
 
     const inChartStocks = useMemo<StockData[]>(() => {
         const stocks: StockData[] = [];
-        data?.forEach((stock) => {
-            if (stock.date <= date && stocks.length < displayDay) {
-                stocks.push(stock);
+        for (let i = 0; i < data.length && stocks.length < displayDay; i++) {
+            if (data[i].date <= date) {
+                stocks.push(data[i]);
             }
-        });
+        }
         return stocks;
     }, [data, date, displayDay]);
 
