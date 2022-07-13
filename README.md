@@ -21,7 +21,7 @@ Base on [this](https://github.com/strongball/stock-chart) project.   Replace svg
 | HelperLine   | Display auxiliary lines on `BaseChart` with cursor.|
 | StockChart   | High level component is composed of with `BaseChart`, `Candlestick`, `X(Y)Axis`, `HelperLine`.|
 | ReactiveDiv  | Pass actual width and height in number for child compoents.
-| uilts        | Helper functions, convert px to ticks or ticks to px. 
+| uilts        | Helper functions, convert px to ticks or ticks to px. Category in `ticksToPxFactory` will use map to optimize search speed. |
 
 ### Process for react render and canvas draw.
 * Initialization: `BaseChart`(wihtout `CanvasRender`) -> children (render without draw) -> `BaseChart`(useffect and set `CanvasRender`) -> context change -> children (render and draw).

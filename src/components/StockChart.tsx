@@ -30,7 +30,7 @@ const StockChart: React.FC<Props> = (props) => {
     const inChartStocks = useMemo<StockData[]>(() => {
         const stocks: StockData[] = [];
         data?.forEach((stock) => {
-            if (!dayjs(stock.date).isAfter(date) && stocks.length < displayDay) {
+            if (stock.date <= date && stocks.length < displayDay) {
                 stocks.push(stock);
             }
         });

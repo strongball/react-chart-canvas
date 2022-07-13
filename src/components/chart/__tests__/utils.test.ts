@@ -1,24 +1,22 @@
-import { pxToTick, ticksToPx } from '../utils';
+import { pxToTick, ticksToPxFactory } from '../utils';
 
-describe('ticksToPx', () => {
+describe('ticksToPxFactory', () => {
     it('Series', () => {
         expect(
-            ticksToPx({
+            ticksToPxFactory({
                 start: 0,
                 end: 100,
-                target: 50,
                 ticks: [0, 10, 20, 100],
-            })
+            })(50)
         ).toBe(50);
     });
     it('Category', () => {
         expect(
-            ticksToPx({
+            ticksToPxFactory({
                 start: 0,
                 end: 100,
-                target: 'B',
                 ticks: ['A', 'B', 'C', 'D', 'E'],
-            })
+            })('B')
         ).toBe(25);
     });
 });

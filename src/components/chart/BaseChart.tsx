@@ -3,7 +3,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 import { ChartContext } from './context';
 import { DataValue, Padding, Point, Rect } from './types';
 import { CanvasRender, RenderBackend } from './CanvasRender';
-import { pxToTick, ticksToPx } from './utils';
+import { pxToTick, ticksToPxFactory } from './utils';
 
 interface Props {
     width: number;
@@ -51,28 +51,20 @@ const BaseChart: React.FC<React.PropsWithChildren<Props>> = (props) => {
         width: width - yTickWidth - padding.left - padding.right,
         height: height - xTickHeight - padding.top - padding.bottom,
     };
-    const xAxisFn = useCallback(
-        (x: DataValue) => {
-            return ticksToPx({
-                target: x,
-                ticks: xAxisTicks,
-                start: content.x,
-                end: content.x + content.width,
-            });
-        },
-        [xAxisTicks, content.x, content.width]
-    );
-    const yAxisFn = useCallback(
-        (y: DataValue) => {
-            return ticksToPx({
-                target: y,
-                ticks: yAxisTicks,
-                start: content.y + content.height,
-                end: content.y,
-            });
-        },
-        [yAxisTicks, content.y, content.height]
-    );
+    const xAxisFn = useMemo(() => {
+        return ticksToPxFactory({
+            ticks: xAxisTicks,
+            start: content.x,
+            end: content.x + content.width,
+        });
+    }, [xAxisTicks, content.x, content.width]);
+    const yAxisFn = useMemo(() => {
+        return ticksToPxFactory({
+            ticks: yAxisTicks,
+            start: content.y + content.height,
+            end: content.y,
+        });
+    }, [yAxisTicks, content.y, content.height]);
 
     /**
      * hover

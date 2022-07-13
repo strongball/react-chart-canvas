@@ -3,25 +3,29 @@ import { DataValue } from './types';
  * start: ticks[0] px.
  * end: ticks[-1]px.
  */
-interface TicksToPxParams {
-    target: DataValue;
+interface TicksToPxFactoryParams {
     ticks: DataValue[];
     start: number;
     end: number;
+    map?: Map<DataValue, number>;
 }
-export function ticksToPx({ target, ticks, start, end }: TicksToPxParams) {
+type TicksToPxFn = (target: DataValue) => number;
+export function ticksToPxFactory({ ticks, start, end, map }: TicksToPxFactoryParams): TicksToPxFn {
     if (ticks.length === 0) {
-        return 0;
+        return () => 0;
     }
     const length = end - start;
-    if (typeof target === 'number' && typeof ticks[0] === 'number') {
+    if (typeof ticks[0] === 'number') {
         // numeral
         const min: number = ticks[0];
         const max: number = ticks[ticks.length - 1] as number;
-        return start + (target - min) * (length / (max - min));
+        //  start + ((target as number) - min) * (length / (max - min));
+        const fixedValue = length / (max - min);
+        return (target) => start + ((target as number) - min) * fixedValue;
     } else {
-        const yTickHeight = length / (ticks.length - 1);
-        return start + ticks.findIndex((tick) => tick === target) * yTickHeight;
+        const tickHeight = length / (ticks.length - 1);
+        const map = new Map(ticks.map((tick, index) => [tick, index]));
+        return (target) => start + (map.get(target) ?? 0) * tickHeight;
     }
 }
 interface PxToTickParams {

@@ -23,9 +23,9 @@ export interface DrawLineOptions {
     strokeStyle?: string;
 }
 export abstract class RenderBackend {
-    abstract drawLine(start: Position, end: Position, options: DrawLineOptions): React.ReactNode;
-    abstract drawRect(options: DrawRectOptions): React.ReactNode;
-    abstract drawText(text: string, position: Position, params: DrawTextOptions): React.ReactNode;
+    abstract drawLine(start: Position, end: Position, options: DrawLineOptions);
+    abstract drawRect(options: DrawRectOptions);
+    abstract drawText(text: string, position: Position, params: DrawTextOptions);
     abstract clear();
 }
 
@@ -69,7 +69,6 @@ export class CanvasRender implements RenderBackend {
         return null;
     }
     clear() {
-        console.log('clear');
         this.ctx.save();
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
