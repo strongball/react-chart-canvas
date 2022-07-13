@@ -25,6 +25,7 @@ export function ticksToPxFactory({ ticks, start, end, map }: TicksToPxFactoryPar
     } else {
         const tickHeight = length / (ticks.length - 1);
         const map = new Map(ticks.map((tick, index) => [tick, index]));
+        // return (target) => start + ticks.findIndex((tick) => tick === target) * tickHeight;
         return (target) => start + (map.get(target) ?? 0) * tickHeight;
     }
 }

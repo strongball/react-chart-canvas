@@ -32,15 +32,17 @@ const StockPage: React.FC<Props> = (props) => {
                     <div>
                         {`Date: ${date}, Day: ${displayDay},`} <FPS />
                     </div>
-                    <ButtonGroup variant="outlined" aria-label="outlined button group">
-                        <Button onClick={() => setDisplayDay(displayDay + 10)}>+</Button>
-                        <Button onClick={() => setDisplayDay(displayDay - 10)}>-</Button>
-                        <Button onClick={() => setDisplayDay(30)}>30 Day</Button>
-                        <Button onClick={() => setDisplayDay(100)}>100 Day</Button>
-                        <Button onClick={() => setDisplayDay(500)}>500 Day</Button>
-                        <Button onClick={() => setDisplayDay(1000)}>1000 Day</Button>
-                        <Button onClick={() => setDisplayDay(2000)}>2000 Day</Button>
-                    </ButtonGroup>
+                    <div style={{ overflow: 'auto' }}>
+                        <ButtonGroup variant="outlined" aria-label="outlined button group">
+                            <Button onClick={() => setDisplayDay(displayDay + 10)}>+</Button>
+                            <Button onClick={() => setDisplayDay(displayDay - 10)}>-</Button>
+                            <Button onClick={() => setDisplayDay(30)}>30 Day</Button>
+                            <Button onClick={() => setDisplayDay(100)}>100 Day</Button>
+                            <Button onClick={() => setDisplayDay(500)}>500 Day</Button>
+                            <Button onClick={() => setDisplayDay(1000)}>1000 Day</Button>
+                            <Button onClick={() => setDisplayDay(2000)}>2000 Day</Button>
+                        </ButtonGroup>
+                    </div>
                 </CardContent>
                 <CardContent>
                     {data ? (
