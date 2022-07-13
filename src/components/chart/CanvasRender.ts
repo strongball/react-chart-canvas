@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface Options {
     canvas: HTMLCanvasElement;
 }
@@ -21,9 +23,9 @@ export interface DrawLineOptions {
     strokeStyle?: string;
 }
 export abstract class RenderBackend {
-    abstract drawLine(start: Position, end: Position, options: DrawLineOptions);
-    abstract drawRect(options: DrawRectOptions);
-    abstract drawText(text: string, position: Position, params: DrawTextOptions);
+    abstract drawLine(start: Position, end: Position, options: DrawLineOptions): React.ReactNode;
+    abstract drawRect(options: DrawRectOptions): React.ReactNode;
+    abstract drawText(text: string, position: Position, params: DrawTextOptions): React.ReactNode;
     abstract clear();
 }
 
@@ -46,6 +48,7 @@ export class CanvasRender implements RenderBackend {
         this.ctx.lineTo(end.x + 0.5, end.y + 0.5);
         this.ctx.stroke();
         this.ctx.restore();
+        return null;
     }
 
     // helper function to draw a rect:
@@ -54,6 +57,7 @@ export class CanvasRender implements RenderBackend {
         color && (this.ctx.fillStyle = color);
         this.ctx.fillRect(x, y, width, height);
         this.ctx.restore();
+        return null;
     }
     // helper function to draw a text:
     drawText(text: string, position: Position, { fillStyle, font }: DrawTextOptions = {}) {
@@ -62,6 +66,7 @@ export class CanvasRender implements RenderBackend {
         font && (this.ctx.font = font);
         this.ctx.fillText(text, position.x, position.y);
         this.ctx.restore();
+        return null;
     }
     clear() {
         console.log('clear');
