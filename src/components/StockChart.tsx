@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { StockData } from '../api/stock';
 import BaseChart from './chart/BaseChart';
-import { DataValue } from './chart/types';
+import { DataValue, Point } from './chart/types';
 import XAxis from './chart/XAxis';
 import YAxis from './chart/YAxis';
 import Candlestick from './chart/Candlestick';
@@ -13,7 +13,8 @@ import { useSwipeControl } from '../hooks/swipe';
 import HelperLine from './chart/HelperLine';
 
 function priceRound(value: number): number {
-    return Math.round(value * 2) / 2;
+    const base = 0.5;
+    return Math.round(value / base) * base;
 }
 interface Props {
     width: number;
@@ -91,6 +92,19 @@ const StockChart: React.FC<Props> = (props) => {
         },
         threshold: tickWidth,
     });
+    // hover
+    const [hover, setHover] = useState<Point>();
+    const onHover = (point?: Point) => {
+        if (!point) {
+            setHover(undefined);
+        } else {
+            const x = point.x;
+            const y = priceRound(point.y as number);
+            if (!hover || x !== hover.x || y !== hover.y) {
+                setHover({ x, y });
+            }
+        }
+    };
     return (
         <div>
             <BaseChart
@@ -109,10 +123,11 @@ const StockChart: React.FC<Props> = (props) => {
                         swipeEvent?.onTouchMove && swipeEvent?.onTouchMove(e);
                     },
                 }}
+                onHover={onHover}
             >
                 <XAxis line={false} maxTickCount={Math.round(width / 80)} />
                 <YAxis label={(data) => Number(data).toFixed(2)} />
-                <HelperLine label={(data) => Number(data).toFixed(2)} />
+                <HelperLine label={(data) => Number(data).toFixed(2)} point={hover} />
                 <Candlestick data={inChartStocks} />
             </BaseChart>
         </div>

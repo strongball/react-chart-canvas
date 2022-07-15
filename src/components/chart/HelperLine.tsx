@@ -1,17 +1,19 @@
 import React, { useContext } from 'react';
 import { ChartContext } from './context';
-import { DataValue } from './types';
+import { DataValue, Point } from './types';
 
 interface Props {
     fontSize?: number;
     label?: (value: DataValue) => string;
+    point?: Point;
 }
 const HelperLine: React.FC<Props> = (props) => {
-    const { fontSize = 8, label = (v) => v.toString() } = props;
-    const { render, content, xAxisFn, yAxisFn, hover, yTickWidth, yTickPosition } = useContext(ChartContext);
-    if (render && hover) {
-        const x = xAxisFn(hover.x);
-        const y = yAxisFn(hover.y);
+    const { fontSize = 8, label = (v) => v.toString(), point } = props;
+    const { render, content, xAxisFn, yAxisFn, yTickWidth, yTickPosition } = useContext(ChartContext);
+
+    if (render && point) {
+        const x = xAxisFn(point.x);
+        const y = yAxisFn(point.y);
         render.drawLine(
             { x: content.x, y: y },
             { x: content.x + content.width, y: y },
@@ -29,14 +31,14 @@ const HelperLine: React.FC<Props> = (props) => {
 
         render.drawRect({
             x: labelTextX - textPadding,
-            y: yAxisFn(hover.y) - fontSize,
+            y: yAxisFn(point.y) - fontSize,
             width: yTickWidth,
             height: fontSize * 2,
             color: 'green',
         });
         render.drawText(
-            label(hover.y),
-            { x: labelTextX, y: yAxisFn(hover.y) + fontSize / 2 },
+            label(point.y),
+            { x: labelTextX, y: yAxisFn(point.y) + fontSize / 2 },
             { font: `${fontSize}px`, fillStyle: 'white' }
         );
     }

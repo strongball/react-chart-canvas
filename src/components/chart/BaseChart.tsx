@@ -17,7 +17,10 @@ interface Props {
     yAxisTicks: DataValue[];
     yTickWidth?: number;
     yTickPosition?: 'right' | 'left';
+    //
     DivProps?: React.HTMLAttributes<HTMLDivElement>;
+    // event
+    onHover?: (point?: Point) => void;
     // for test
     mockRender?: RenderBackend;
 }
@@ -32,6 +35,7 @@ const BaseChart: React.FC<React.PropsWithChildren<Props>> = (props) => {
         yTickWidth = 30,
         yTickPosition = 'left',
         DivProps,
+        onHover,
         mockRender,
     } = props;
 
@@ -43,6 +47,7 @@ const BaseChart: React.FC<React.PropsWithChildren<Props>> = (props) => {
         } else if (canvas.current) {
             setCanvasRender(new CanvasRender({ canvas: canvas.current }));
         }
+        // show rerender when width, height changed.
     }, [width, height]);
 
     const content: Rect = {
@@ -69,7 +74,6 @@ const BaseChart: React.FC<React.PropsWithChildren<Props>> = (props) => {
     /**
      * hover
      */
-    const [hover, setHover] = useState<Point>();
     const handleMouseMove = (e) => {
         if (canvas.current) {
             const cRect = canvas.current.getBoundingClientRect(); // Gets CSS pos, and width/height
@@ -88,11 +92,9 @@ const BaseChart: React.FC<React.PropsWithChildren<Props>> = (props) => {
                 end: content.y,
             });
             if (tickX === null || tickY === null) {
-                if (hover) {
-                    setHover(undefined);
-                }
-            } else if (hover?.x !== tickX || hover.y !== tickY) {
-                setHover({ x: tickX, y: tickY });
+                onHover && onHover();
+            } else {
+                onHover && onHover({ x: tickX, y: tickY });
             }
         }
     };
@@ -109,7 +111,6 @@ const BaseChart: React.FC<React.PropsWithChildren<Props>> = (props) => {
                 xTickHeight: xTickHeight,
                 yTickWidth: yTickWidth,
                 yTickPosition: yTickPosition,
-                hover: hover,
             }}
         >
             <div

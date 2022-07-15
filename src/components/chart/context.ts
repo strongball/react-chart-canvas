@@ -14,7 +14,6 @@ interface ChartContextProps {
     xTickHeight: number;
     yTickWidth: number;
     yTickPosition: 'right' | 'left';
-    hover?: Point;
 }
 export const ChartContext = createContext<ChartContextProps>({
     render: null,
